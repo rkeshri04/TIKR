@@ -140,7 +140,12 @@ export default function PricedIn({ d }: { d: Dossier }) {
   return (
     <Card
       title="What's priced in"
-      right={e.verdict && <span className="chip text-ink">{VERDICT_COPY[e.verdict]}</span>}
+      right={
+        <div className="flex items-center gap-2">
+          <a href="/guide#priced-in" className="text-[11px] text-mute underline decoration-line/30 underline-offset-2 hover:text-ink">How to read this</a>
+          {e.verdict && <span className="chip text-ink">{VERDICT_COPY[e.verdict]}</span>}
+        </div>
+      }
     >
       {/* Headline: the price, translated into a forecast */}
       <p className="text-[17px] leading-snug text-ink">
@@ -305,6 +310,7 @@ export function ThesisCard({ d }: { d: Dossier }) {
       title="Thesis tripwires"
       right={
         <div className="flex items-center gap-2">
+          <a href="/guide#tripwires" className="text-[11px] text-mute underline decoration-line/30 underline-offset-2 hover:text-ink">Help</a>
           <span className="chip">{stanceOf(t) === "bull" ? "▲ Bullish" : "▼ Bearish"}</span>
           <span className="chip text-ink">{ICON[overall]} {STATUS_COPY[overall]}</span>
           <button onClick={() => confirm(`Delete your ${d.symbol} thesis?`) && deleteThesis(d.symbol)} className="tab" aria-label="Delete thesis"><Trash2 size={13} /></button>

@@ -55,6 +55,10 @@ export default function Home() {
           <div className="relative z-30 mx-auto mt-10 max-w-2xl text-left">
             <SearchBox big autoFocus />
           </div>
+          <p className="mt-4 text-sm text-mute">
+            New to investing or to TIKR?{" "}
+            <Link href="/guide" className="text-accent underline decoration-accent/30 underline-offset-2 hover:decoration-accent">Read the 10-minute guide</Link>.
+          </p>
           <div className="mx-auto mt-5 flex max-w-2xl flex-wrap justify-center gap-2">
             {POPULAR.map((s) => (
               <Link key={s} href={`/t/${s}`} className="chip num !px-2.5 !py-1 transition-colors hover:bg-panel hover:!text-ink">{s}</Link>

@@ -87,9 +87,13 @@ browser ──► /api/analyze/:symbol (NDJSON stream) ──► lib/llm.ts
 app/                 Next.js App Router pages + API routes
   api/dossier|analyze|ask|chart|market|search
   t/[symbol]/        ticker dashboard
+  guide/             plain-language tutorial
 components/          UI (chart, panels, AI report, news, search, theme)
+  guide/             tutorial page + theme-aware illustrations
 lib/                 data sources, indicators, scoring, LLM
 ```
+
+A plain-language guide with illustrations of every tool lives at **`/guide`**. It's linked from the header, the home page and the "What's priced in" panel.
 
 Built with Next.js 15, React 19, Tailwind, TradingView Lightweight Charts, Recharts and the Anthropic SDK. It has dark and light themes, a watchlist and recent tickers (stored in your browser), and `⌘K` opens search.
 

@@ -43,7 +43,8 @@ function splitVerdict(md: string): { body: string; verdict: Verdict | null } {
   return { body: open >= 0 ? md.slice(0, open) : md, verdict: null };
 }
 
-const RATING_TONE = (r: string) => (/buy|accumulate/i.test(r) ? "text-up border-up/40 bg-up/10" : /sell|reduce/i.test(r) ? "text-down border-down/40 bg-down/10" : "text-warn border-warn/40 bg-warn/10");
+const RATING_TONE = (r: string) => (/buy|accumulate/i.test(r) ? "text-up" : /sell|reduce/i.test(r) ? "text-down" : "text-ink");
+const RATING_GLYPH = (r: string) => (/buy|accumulate/i.test(r) ? "▲" : /sell|reduce/i.test(r) ? "▼" : "■");
 
 const md = (s: string) => (
   <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ a: (p) => <a {...p} target="_blank" rel="noreferrer" /> }}>
@@ -98,11 +99,10 @@ export default function AIReport({ d, llm }: { d: Dossier; llm: boolean }) {
   const upside = verdict ? ((verdict.fairValueLow + verdict.fairValueHigh) / 2 / price - 1) * 100 : null;
 
   return (
-    <section className="card relative overflow-hidden p-0 animate-fadeup">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent" />
+    <section className="card overflow-hidden p-0">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 hairline">
         <div className="flex items-center gap-2.5">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-accent to-purple-500 text-white shadow-lg shadow-accent/30">
+          <div className="grid h-8 w-8 place-items-center rounded-md border bg-raised text-ink hairline">
             <Sparkles size={16} />
           </div>
           <div>
@@ -122,7 +122,10 @@ export default function AIReport({ d, llm }: { d: Dossier; llm: boolean }) {
 
       {verdict && (
         <div className="grid gap-3 border-b px-5 py-4 hairline sm:grid-cols-[auto_1fr_auto] sm:items-center">
-          <div className={clsx("rounded-xl border px-4 py-2 text-center text-lg font-bold", RATING_TONE(verdict.rating))}>{verdict.rating}</div>
+          <div className="rounded-md border bg-raised px-4 py-2 text-center hairline">
+            <div className="eyebrow">Rating</div>
+            <div className={clsx("text-lg font-semibold", RATING_TONE(verdict.rating))}><span className="mr-1.5 text-xs">{RATING_GLYPH(verdict.rating)}</span>{verdict.rating}</div>
+          </div>
           <div className="text-sm text-ink/85">{verdict.oneLiner}</div>
           <div className="num flex gap-5 text-right text-xs text-mute">
             <div>Fair value ({verdict.horizon})<div className="text-sm font-semibold text-ink">{fmtNum(verdict.fairValueLow)}–{fmtNum(verdict.fairValueHigh)}</div></div>
@@ -151,13 +154,13 @@ export default function AIReport({ d, llm }: { d: Dossier; llm: boolean }) {
         )}
         {body && <div className={clsx("prose-tikr", state === "running" && "caret")}>{md(body)}</div>}
         {state === "error" && (
-          <div className="mt-3 rounded-xl border border-down/30 bg-down/10 px-4 py-3 text-sm text-down">
+          <div className="mt-3 rounded-md border border-down/40 bg-raised px-4 py-3 text-sm text-ink">
             {err || "Something went wrong."} <button onClick={run} className="ml-2 underline">Retry</button>
           </div>
         )}
         {sources.length > 0 && (
           <div className="mt-6 border-t pt-4 hairline">
-            <div className="card-title mb-2">Web sources consulted</div>
+            <div className="eyebrow mb-2">Web sources consulted</div>
             <div className="flex flex-wrap gap-1.5">
               {sources.slice(0, 16).map((s) => (
                 <a key={s.url} href={s.url} target="_blank" rel="noreferrer" className="chip max-w-[260px] text-mute hover:text-ink">
@@ -226,22 +229,22 @@ export function AskAI({ d, llm }: { d: Dossier; llm: boolean }) {
   };
 
   return (
-    <section className="card p-4 sm:p-5 animate-fadeup">
+    <section className="card p-4 sm:p-5">
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="card-title flex items-center gap-2"><Bot size={13} /> Ask the analyst</h3>
-        {!llm && <span className="chip text-warn">needs API key</span>}
+        <h3 className="card-title flex items-center gap-2"><Bot size={14} className="text-mute" /> Ask the analyst</h3>
+        {!llm && <span className="chip">Requires API key</span>}
       </div>
       {msgs.length === 0 && (
         <div className="grid gap-2 sm:grid-cols-2">
           {suggestions.map((s) => (
-            <button key={s} onClick={() => ask(s)} className="rounded-xl border px-3 py-2.5 text-left text-[13px] text-ink/80 transition hairline hover:border-accent/40 hover:bg-accent/5">{s}</button>
+            <button key={s} onClick={() => ask(s)} className="rounded-md border px-3 py-2.5 text-left text-[13px] text-ink/85 transition-colors hairline hover:bg-raised">{s}</button>
           ))}
         </div>
       )}
       <div className="max-h-[480px] space-y-4 overflow-y-auto">
         {msgs.map((m, i) => (
           <div key={i} className={clsx("flex", m.role === "user" ? "justify-end" : "justify-start")}>
-            <div className={clsx("max-w-[92%] rounded-2xl px-4 py-2.5", m.role === "user" ? "bg-accent/15 text-sm" : "border hairline")}>
+            <div className={clsx("max-w-[92%] rounded-lg px-4 py-2.5", m.role === "user" ? "bg-raised text-sm" : "border hairline")}>
               {m.role === "user" ? m.content : m.content ? <div className="prose-tikr !text-[13.5px]">{md(m.content)}</div> : (
                 <span className="flex items-center gap-2 text-xs text-mute"><Loader2 size={12} className="animate-spin" /> {status || "Thinking…"}</span>
               )}
@@ -255,7 +258,7 @@ export function AskAI({ d, llm }: { d: Dossier; llm: boolean }) {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={`Ask anything about ${d.symbol}…`}
-          className="h-10 min-w-0 flex-1 rounded-xl border bg-transparent px-3 text-sm outline-none hairline placeholder:text-mute/70 focus:border-accent/50"
+          className="field h-10 min-w-0 flex-1 px-3 text-sm placeholder:text-mute"
         />
         <button className="btn-primary h-10 !px-3" disabled={busy || !q.trim()} aria-label="Send"><Send size={15} /></button>
       </form>

@@ -26,7 +26,7 @@ export default function MarketTape() {
   if (!rows) return <div className="h-11 border-b hairline" />;
   const items = [...rows, ...rows]; // duplicated for a seamless marquee loop
   return (
-    <div className="group relative overflow-hidden border-b hairline bg-panel/40 backdrop-blur [mask-image:linear-gradient(90deg,transparent,#000_6%,#000_94%,transparent)]">
+    <div className="group relative overflow-hidden border-t bg-panel hairline [mask-image:linear-gradient(90deg,transparent,#000_6%,#000_94%,transparent)]">
       <div className="flex w-max animate-marquee gap-8 py-2.5 pl-8 group-hover:[animation-play-state:paused]">
         {items.map((r, i) => (
           <Link key={i} href={`/t/${encodeURIComponent(r.symbol)}`} className="flex items-center gap-2.5 text-xs hover:opacity-80">

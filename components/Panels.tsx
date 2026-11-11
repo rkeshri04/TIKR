@@ -8,7 +8,7 @@ import { fmtBig, fmtNum, fmtPct, fmtX } from "@/lib/format";
 
 export function Card({ title, right, children, className }: { title?: React.ReactNode; right?: React.ReactNode; children: React.ReactNode; className?: string }) {
   return (
-    <section className={clsx("card p-4 sm:p-5 animate-fadeup", className)}>
+    <section className={clsx("card p-4 sm:p-5", className)}>
       {(title || right) && (
         <div className="mb-4 flex items-center justify-between gap-3">
           <h3 className="card-title">{title}</h3>
@@ -20,8 +20,7 @@ export function Card({ title, right, children, className }: { title?: React.Reac
   );
 }
 
-const tone = (v: number | null) => (v == null ? "text-mute" : v >= 65 ? "text-up" : v >= 45 ? "text-warn" : "text-down");
-const barTone = (v: number) => (v >= 65 ? "bg-up" : v >= 45 ? "bg-warn" : "bg-down");
+
 
 export function ScoreCard({ d }: { d: Dossier }) {
   const s = d.scores;
@@ -37,21 +36,21 @@ export function ScoreCard({ d }: { d: Dossier }) {
     ["Safety", s.risk, "Volatility, drawdown, beta"],
   ];
   return (
-    <Card title="TIKR Score" right={<span className="chip text-mute">quant · 0–100</span>}>
+    <Card title="TIKR Score" right={<span className="text-[11px] text-mute">Quant composite, 0–100</span>}>
       <div className="flex items-center gap-5">
         <div className="relative h-32 w-32 shrink-0">
           <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
-            <circle cx="60" cy="60" r={R} fill="none" strokeWidth="9" className="stroke-line/10" />
+            <circle cx="60" cy="60" r={R} fill="none" strokeWidth="8" className="stroke-raised" />
             <circle
-              cx="60" cy="60" r={R} fill="none" strokeWidth="9" strokeLinecap="round"
+              cx="60" cy="60" r={R} fill="none" strokeWidth="8" strokeLinecap="butt"
               strokeDasharray={`${(s.overall / 100) * C} ${C}`}
-              className={clsx("transition-all duration-700", s.overall >= 65 ? "stroke-up" : s.overall >= 45 ? "stroke-warn" : "stroke-down")}
+              className="stroke-accent transition-all duration-700"
             />
           </svg>
           <div className="absolute inset-0 grid place-items-center text-center">
             <div>
-              <div className="num text-4xl font-bold leading-none">{s.overall}</div>
-              <div className={clsx("mt-1 text-[11px] font-semibold uppercase tracking-wider", tone(s.overall))}>{label}</div>
+              <div className="num text-[34px] font-semibold leading-none tracking-tight">{s.overall}</div>
+              <div className="mt-1.5 text-[11px] font-medium text-mute">{label}</div>
             </div>
           </div>
         </div>
@@ -60,10 +59,10 @@ export function ScoreCard({ d }: { d: Dossier }) {
             <div key={k} className="group" title={hint}>
               <div className="flex items-center justify-between text-xs">
                 <span className="text-ink/80">{k}</span>
-                <span className={clsx("num font-semibold", tone(v))}>{v ?? "n/a"}</span>
+                <span className={clsx("num font-medium", v == null ? "text-mute" : "text-ink")}>{v ?? "n/a"}</span>
               </div>
-              <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-line/10">
-                {v != null && <div className={clsx("h-full rounded-full transition-all duration-700", barTone(v))} style={{ width: `${Math.max(3, v)}%` }} />}
+              <div className="mt-1 h-1 overflow-hidden rounded-sm bg-raised">
+                {v != null && <div className="h-full rounded-sm bg-accent transition-all duration-700" style={{ width: `${Math.max(2, v)}%` }} />}
               </div>
             </div>
           ))}
@@ -75,9 +74,9 @@ export function ScoreCard({ d }: { d: Dossier }) {
 
 function Stat({ k, v, sub, hint }: { k: string; v: React.ReactNode; sub?: React.ReactNode; hint?: string }) {
   return (
-    <div className="min-w-0 rounded-xl border p-3 hairline" title={hint}>
+    <div className="min-w-0 rounded-md border bg-bg/40 p-3 hairline" title={hint}>
       <div className="truncate text-[11px] text-mute">{k}</div>
-      <div className="num mt-1 truncate text-[15px] font-semibold">{v}</div>
+      <div className="num mt-1 truncate text-[15px] font-medium">{v}</div>
       {sub && <div className="num mt-0.5 truncate text-[11px] text-mute">{sub}</div>}
     </div>
   );
@@ -115,15 +114,10 @@ export function Returns({ d }: { d: Dossier }) {
     <Card title="Performance">
       <div className="grid grid-cols-4 gap-2 sm:grid-cols-8">
         {entries.map(([k, v]) => {
-          const a = v == null ? 0 : Math.min(1, Math.abs(v) / 0.5);
           return (
-            <div
-              key={k}
-              className="rounded-xl border p-2.5 text-center hairline"
-              style={{ background: v == null ? undefined : `rgb(var(${v >= 0 ? "--up" : "--down"}) / ${0.05 + a * 0.25})` }}
-            >
+            <div key={k} className="rounded-md border bg-bg/40 p-2.5 text-center hairline">
               <div className="text-[11px] text-mute">{k}</div>
-              <div className={clsx("num mt-0.5 text-sm font-semibold", v == null ? "text-mute" : v >= 0 ? "text-up" : "text-down")}>{fmtPct(v, 1, true)}</div>
+              <div className={clsx("num mt-0.5 text-sm font-medium", v == null ? "text-mute" : v >= 0 ? "text-up" : "text-down")}>{fmtPct(v, 1, true)}</div>
             </div>
           );
         })}
@@ -146,27 +140,31 @@ export function TechnicalsCard({ d }: { d: Dossier }) {
   return (
     <Card
       title="Technicals"
-      right={<span className={clsx("chip capitalize", t.trend === "uptrend" ? "text-up" : t.trend === "downtrend" ? "text-down" : "text-warn")}>{t.trend}</span>}
+      right={<span className="chip capitalize text-ink">{t.trend === "uptrend" ? "▲ " : t.trend === "downtrend" ? "▼ " : "◆ "}{t.trend}</span>}
     >
       <div className="grid gap-5 sm:grid-cols-[150px_1fr]">
         <div className="text-center">
           <svg viewBox="0 0 120 70" className="mx-auto w-[150px]" role="img" aria-label={`RSI ${rsi.toFixed(0)}`}>
-            <path d="M10 60 A50 50 0 0 1 40 14.2" fill="none" strokeWidth="8" className="stroke-up/70" />
-            <path d="M41.5 13.6 A50 50 0 0 1 78.5 13.6" fill="none" strokeWidth="8" className="stroke-line/15" />
-            <path d="M80 14.2 A50 50 0 0 1 110 60" fill="none" strokeWidth="8" className="stroke-down/70" />
-            <line x1="60" y1="60" x2={nx} y2={ny} strokeWidth="3" strokeLinecap="round" className="stroke-ink" />
-            <circle cx="60" cy="60" r="5" className="fill-ink" />
+            <path d="M10 60 A50 50 0 0 1 40 14.2" fill="none" strokeWidth="6" className="stroke-line/25" />
+            <path d="M41.5 13.6 A50 50 0 0 1 78.5 13.6" fill="none" strokeWidth="6" className="stroke-raised" />
+            <path d="M80 14.2 A50 50 0 0 1 110 60" fill="none" strokeWidth="6" className="stroke-line/25" />
+            <text x="10" y="69" fontSize="7" className="fill-mute">0</text>
+            <text x="27" y="12" fontSize="7" className="fill-mute">30</text>
+            <text x="85" y="12" fontSize="7" className="fill-mute">70</text>
+            <text x="104" y="69" fontSize="7" className="fill-mute">100</text>
+            <line x1="60" y1="60" x2={nx} y2={ny} strokeWidth="2" strokeLinecap="round" className="stroke-ink" />
+            <circle cx="60" cy="60" r="3.5" className="fill-ink" />
           </svg>
-          <div className="num -mt-1 text-2xl font-bold">{rsi.toFixed(0)}</div>
+          <div className="num -mt-1 text-2xl font-semibold">{rsi.toFixed(0)}</div>
           <div className="text-[11px] text-mute">RSI (14) · {rsi > 70 ? "overbought" : rsi < 30 ? "oversold" : "neutral zone"}</div>
           <div className="mt-3 flex justify-center gap-3 text-[11px]">
-            <span className="text-up">{bull} bullish</span>
-            <span className="text-down">{bear} bearish</span>
+            <span className="text-mute"><span className="text-up">▲</span> {bull} bullish</span>
+            <span className="text-mute"><span className="text-down">▼</span> {bear} bearish</span>
           </div>
         </div>
         <div className="space-y-1.5">
           {t.signals.map((s) => (
-            <div key={s.name} className="flex items-center justify-between gap-3 rounded-lg px-2 py-1.5 text-[13px] hover:bg-line/5">
+            <div key={s.name} className="flex items-center justify-between gap-3 rounded-lg px-2 py-1.5 text-[13px] hover:bg-raised">
               <span className="text-ink/80">{s.name}</span>
               <span className="flex items-center gap-1.5">
                 <span className="num text-ink/90">{s.value}</span>
@@ -181,8 +179,9 @@ export function TechnicalsCard({ d }: { d: Dossier }) {
           <span>52w low <b className="num font-medium text-ink/80">{fmtNum(lo)}</b></span>
           <span>52w high <b className="num font-medium text-ink/80">{fmtNum(hi)}</b></span>
         </div>
-        <div className="relative mt-1.5 h-2 rounded-full bg-gradient-to-r from-down/50 via-warn/40 to-up/50">
-          <div className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-panel bg-ink shadow" style={{ left: `${Math.max(0, Math.min(100, pos))}%` }} />
+        <div className="relative mt-2 h-1 rounded-sm bg-raised">
+          <div className="absolute inset-y-0 left-0 rounded-sm bg-line/25" style={{ width: `${Math.max(0, Math.min(100, pos))}%` }} />
+          <div className="absolute top-1/2 h-3 w-0.5 -translate-x-1/2 -translate-y-1/2 bg-ink" style={{ left: `${Math.max(0, Math.min(100, pos))}%` }} />
         </div>
         <div className="num mt-3 grid grid-cols-3 gap-2 text-center text-[11px] text-mute">
           <div>Support<div className="text-[13px] font-semibold text-ink/90">{fmtNum(t.support)}</div></div>
@@ -205,7 +204,7 @@ export function PeersCard({ d }: { d: Dossier }) {
           <Link
             key={p.symbol}
             href={`/t/${encodeURIComponent(p.symbol)}`}
-            className={clsx("grid grid-cols-[72px_1fr_64px] items-center gap-3 rounded-lg px-2 py-1.5 text-[13px] hover:bg-line/5", p.self && "bg-accent/10")}
+            className={clsx("grid grid-cols-[72px_1fr_64px] items-center gap-3 rounded px-2 py-1.5 text-[13px] hover:bg-raised", p.self && "bg-raised")}
             title={`${p.name} · ${fmtPct(p.ret1y, 1, true)} over 1 year · today ${p.changePct != null ? p.changePct.toFixed(2) + "%" : "—"}`}
           >
             <span className="num truncate font-semibold">{p.symbol}</span>
@@ -213,7 +212,7 @@ export function PeersCard({ d }: { d: Dossier }) {
               <span className="absolute inset-y-0 left-1/2 w-px bg-line/15" />
               {p.ret1y != null && (
                 <span
-                  className={clsx("absolute top-1/2 h-3 -translate-y-1/2", p.ret1y >= 0 ? "rounded-r-[4px] bg-up/80" : "rounded-l-[4px] bg-down/80")}
+                  className={clsx("absolute top-1/2 h-3 -translate-y-1/2", p.ret1y >= 0 ? "rounded-r-sm bg-up/70" : "rounded-l-sm bg-down/70")}
                   style={{ [p.ret1y >= 0 ? "left" : "right"]: "50%", width: `${(Math.abs(p.ret1y) / max) * 50}%` } as React.CSSProperties}
                 />
               )}
@@ -232,7 +231,7 @@ export function FilingsCard({ d }: { d: Dossier }) {
   const reports = d.filings.filter((f) => f.form !== "4");
   const insider = d.filings.filter((f) => f.form === "4");
   const list = tab === "reports" ? reports : insider;
-  const color: Record<string, string> = { "10-K": "text-accent", "10-Q": "text-accent", "8-K": "text-warn", "4": "text-mute" };
+  const color: Record<string, string> = { "10-K": "text-ink", "10-Q": "text-ink", "8-K": "text-ink", "4": "text-mute" };
   return (
     <Card
       title="SEC filings"
@@ -246,7 +245,7 @@ export function FilingsCard({ d }: { d: Dossier }) {
     >
       <div className="max-h-[340px] space-y-0.5 overflow-y-auto pr-1">
         {list.map((f, i) => (
-          <a key={i} href={f.url} target="_blank" rel="noreferrer" className="group flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-line/5">
+          <a key={i} href={f.url} target="_blank" rel="noreferrer" className="group flex items-center gap-3 rounded px-2 py-2 hover:bg-raised">
             <FileText size={15} className={clsx("shrink-0", color[f.form] ?? "text-mute")} />
             <span className="num w-14 shrink-0 text-xs font-semibold">{f.form}</span>
             <span className="min-w-0 flex-1 truncate text-[13px] text-ink/80">{f.form === "4" ? "Insider transaction (Form 4)" : f.description === f.form ? FORM_LABEL[f.form] ?? f.form : f.description}</span>

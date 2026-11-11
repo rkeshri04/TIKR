@@ -54,7 +54,7 @@ export default function Dashboard({ symbol }: { symbol: string }) {
       <main className="mx-auto max-w-[1400px] px-4 pb-24 pt-6 sm:px-6">
         {err ? (
           <div className="mx-auto mt-24 max-w-md text-center">
-            <AlertTriangle className="mx-auto text-warn" size={32} />
+            <AlertTriangle className="mx-auto text-mute" size={32} />
             <h1 className="mt-4 text-xl font-semibold">{err}</h1>
             <p className="mt-2 text-sm text-mute">Check the symbol (e.g. AAPL, BRK-B, SHOP.TO, 7203.T, BTC-USD) or search by company name.</p>
             <Link href="/" className="btn-ghost mt-6"><ArrowLeft size={14} /> Back home</Link>
@@ -64,14 +64,14 @@ export default function Dashboard({ symbol }: { symbol: string }) {
         ) : (
           <>
             <Hero d={d} starred={watch.some((w) => w.symbol === d.symbol)} />
-            <nav className="sticky top-[93px] z-30 -mx-4 mb-5 mt-4 flex gap-1 overflow-x-auto border-b bg-bg/80 px-4 py-2 backdrop-blur-xl hairline sm:-mx-6 sm:px-6">
+            <nav className="sticky top-[93px] z-30 -mx-4 mb-5 mt-4 flex gap-1 overflow-x-auto border-b bg-bg px-4 py-2 hairline sm:-mx-6 sm:px-6">
               {SECTIONS.map(([id, label]) => (
                 <a key={id} href={`#${id}`} className="tab whitespace-nowrap">{label}</a>
               ))}
             </nav>
             {d.warnings.length > 0 && (
-              <div className="mb-5 flex items-start gap-2 rounded-xl border border-warn/30 bg-warn/10 px-4 py-3 text-sm text-warn">
-                <AlertTriangle size={16} className="mt-0.5 shrink-0" />
+              <div className="mb-5 flex items-start gap-2 rounded-md border border-l-2 border-l-warn bg-panel px-4 py-3 text-sm text-ink/85 hairline">
+                <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warn" />
                 <div>{d.warnings.join(" ")}</div>
               </div>
             )}
@@ -118,13 +118,13 @@ function Hero({ d, starred }: { d: Payload; starred: boolean }) {
   const cs = currencySymbol(q.currency);
   const t = new Date(q.marketTime);
   return (
-    <div className="flex flex-wrap items-end justify-between gap-6 animate-fadeup">
+    <div className="flex flex-wrap items-end justify-between gap-6">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="num text-3xl font-bold tracking-tight sm:text-4xl">{d.symbol}</h1>
+          <h1 className="num text-3xl font-semibold tracking-tight sm:text-4xl">{d.symbol}</h1>
           <button
             onClick={() => toggleWatch({ symbol: d.symbol, name: q.name })}
-            className={clsx("grid h-8 w-8 place-items-center rounded-lg border transition hairline", starred ? "text-warn" : "text-mute hover:text-ink")}
+            className={clsx("grid h-8 w-8 place-items-center rounded-md border transition-colors hairline hover:bg-raised", starred ? "text-ink" : "text-mute hover:text-ink")}
             aria-label={starred ? "Remove from watchlist" : "Add to watchlist"}
             aria-pressed={starred}
           >
@@ -137,8 +137,8 @@ function Hero({ d, starred }: { d: Payload; starred: boolean }) {
         <div className="mt-1 truncate text-mute">{q.name}</div>
       </div>
       <div className="text-right">
-        <div className="num text-4xl font-bold tracking-tight sm:text-5xl">
-          <span className="mr-1 text-2xl font-medium text-mute">{cs.trim()}</span>
+        <div className="num text-4xl font-semibold tracking-tight sm:text-5xl">
+          <span className="mr-1 text-2xl font-normal text-mute">{cs.trim()}</span>
           {fmtNum(q.price, q.price < 1 ? 4 : 2)}
         </div>
         <div className={clsx("num mt-1 text-sm font-semibold", up ? "text-up" : "text-down")}>
@@ -163,20 +163,20 @@ function Skeleton({ symbol }: { symbol: string }) {
     <div>
       <div className="flex items-end justify-between">
         <div>
-          <div className="num text-4xl font-bold">{symbol}</div>
+          <div className="num text-4xl font-semibold">{symbol}</div>
           <div className="mt-2 text-sm text-mute">{steps[i]}…</div>
         </div>
         <div className="skeleton h-12 w-48" />
       </div>
       <div className="mt-8 grid gap-5 lg:grid-cols-12">
         <div className="space-y-5 lg:col-span-8">
-          <div className="skeleton h-[480px] rounded-2xl" />
-          <div className="skeleton h-24 rounded-2xl" />
-          <div className="skeleton h-64 rounded-2xl" />
+          <div className="skeleton h-[480px] rounded-lg" />
+          <div className="skeleton h-24 rounded-lg" />
+          <div className="skeleton h-64 rounded-lg" />
         </div>
         <div className="space-y-5 lg:col-span-4">
-          <div className="skeleton h-56 rounded-2xl" />
-          <div className="skeleton h-72 rounded-2xl" />
+          <div className="skeleton h-56 rounded-lg" />
+          <div className="skeleton h-72 rounded-lg" />
         </div>
       </div>
     </div>

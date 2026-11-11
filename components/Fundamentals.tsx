@@ -11,7 +11,7 @@ const axis = { stroke: "rgb(var(--mute))", fontSize: 11, tickLine: false, axisLi
 function Tip({ active, payload, label, kind }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="card px-3 py-2 text-xs shadow-xl">
+    <div className="card px-3 py-2 text-xs shadow-lg">
       <div className="mb-1 font-semibold">FY{label}</div>
       {payload.map((p: any) => (
         <div key={p.dataKey} className="flex items-center gap-2">

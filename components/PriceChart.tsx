@@ -111,7 +111,7 @@ export default function PriceChart({ symbol, daily, timezone, previousClose }: {
     const up = cssColor("--up"), down = cssColor("--down");
     const chart = createChart(el.current, {
       autoSize: true,
-      layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: ink, fontFamily: "JetBrains Mono, ui-monospace, monospace", fontSize: 11, attributionLogo: false },
+      layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: ink, fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif", fontSize: 11, attributionLogo: false },
       grid: { vertLines: { visible: false }, horzLines: { color: grid } },
       rightPriceScale: { borderVisible: false, scaleMargins: { top: 0.08, bottom: 0.22 } },
       timeScale: { borderVisible: false, timeVisible: intraday, secondsVisible: false, fixLeftEdge: true, fixRightEdge: true },
@@ -127,7 +127,7 @@ export default function PriceChart({ symbol, daily, timezone, previousClose }: {
     } else {
       const col = isUp ? up : down;
       const s = chart.addSeries(AreaSeries, {
-        lineColor: col, lineWidth: 2, topColor: isUp ? cssColor("--up", 0.28) : cssColor("--down", 0.28), bottomColor: "rgba(0,0,0,0)", priceLineVisible: false,
+        lineColor: col, lineWidth: 2, lineType: 0, topColor: isUp ? cssColor("--up", 0.12) : cssColor("--down", 0.12), bottomColor: "rgba(0,0,0,0)", priceLineVisible: false,
         crosshairMarkerRadius: 4, crosshairMarkerBorderColor: cssColor("--panel"), crosshairMarkerBorderWidth: 2,
       });
       s.setData(data.map((c) => ({ time: t(c.time), value: c.close })));
@@ -135,7 +135,7 @@ export default function PriceChart({ symbol, daily, timezone, previousClose }: {
     }
     const vol = chart.addSeries(HistogramSeries, { priceScaleId: "vol", priceFormat: { type: "volume" }, lastValueVisible: false, priceLineVisible: false });
     chart.priceScale("vol").applyOptions({ scaleMargins: { top: 0.84, bottom: 0 } });
-    vol.setData(data.map((c) => ({ time: t(c.time), value: c.volume, color: c.close >= c.open ? cssColor("--up", 0.3) : cssColor("--down", 0.3) })));
+    vol.setData(data.map((c) => ({ time: t(c.time), value: c.volume, color: cssColor("--mute", c.close >= c.open ? 0.28 : 0.18) })));
 
     if (overlays) {
       const line = { lineWidth: 2 as const, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false };

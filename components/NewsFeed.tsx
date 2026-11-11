@@ -7,7 +7,7 @@ import type { Dossier, NewsItem } from "@/lib/types";
 import { timeAgo } from "@/lib/format";
 import { Card } from "./Panels";
 
-const LABEL: Record<NewsItem["label"], string> = { bullish: "text-up bg-up/10", bearish: "text-down bg-down/10", neutral: "text-mute bg-line/5" };
+const LABEL: Record<NewsItem["label"], string> = { bullish: "text-up", bearish: "text-down", neutral: "text-mute" };
 
 function domain(url: string) {
   try {
@@ -37,13 +37,13 @@ export function SentimentCard({ d }: { d: Dossier }) {
     return out;
   }, [d.news]);
   const topics = Object.entries(s.topics).sort((a, b) => b[1] - a[1]).slice(0, 8);
-  const mood = s.avg > 0.12 ? ["Positive", "text-up"] : s.avg < -0.12 ? ["Negative", "text-down"] : ["Mixed", "text-warn"];
+  const mood = s.avg > 0.12 ? ["Positive", "text-up"] : s.avg < -0.12 ? ["Negative", "text-down"] : ["Mixed", "text-ink"];
 
   return (
     <Card title="News sentiment" right={<span className="chip text-mute">{s.count} headlines · 30d</span>}>
       <div className="flex items-end justify-between gap-4">
         <div>
-          <div className={clsx("text-2xl font-bold", mood[1])}>{mood[0]}</div>
+          <div className={clsx("text-2xl font-semibold", mood[1])}>{mood[0]}</div>
           <div className="num text-xs text-mute">weighted score {s.avg >= 0 ? "+" : ""}{s.avg.toFixed(2)}</div>
         </div>
         <div className="num flex gap-3 text-right text-xs">
@@ -114,7 +114,7 @@ export default function NewsFeed({ d }: { d: Dossier }) {
       {topics.length > 0 && (
         <div className="-mt-1 mb-3 flex flex-wrap gap-1.5">
           {topics.map((t) => (
-            <button key={t} onClick={() => setTopic(topic === t ? null : t)} className={clsx("chip transition", topic === t ? "border-accent/50 bg-accent/15 text-ink" : "text-mute hover:text-ink")}>{t}</button>
+            <button key={t} onClick={() => setTopic(topic === t ? null : t)} className={clsx("chip transition-colors", topic === t ? "!border-ink/40 !text-ink" : "hover:text-ink")}>{t}</button>
           ))}
         </div>
       )}
@@ -139,7 +139,7 @@ export default function NewsFeed({ d }: { d: Dossier }) {
                   {n.topics.slice(0, 2).map((t) => <span key={t} className="chip !py-0 text-[10px]">{t}</span>)}
                 </div>
               </div>
-              <span className={clsx("h-fit shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide", LABEL[n.label])}>{n.label}</span>
+              <span className={clsx("h-fit shrink-0 whitespace-nowrap text-[11px] font-medium capitalize", LABEL[n.label])}>{n.label === "bullish" ? "▲ " : n.label === "bearish" ? "▼ " : ""}{n.label}</span>
             </a>
           </li>
         ))}

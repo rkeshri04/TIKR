@@ -19,10 +19,10 @@ function List({ title, icon: Icon, items }: { title: string; icon: typeof Star; 
   if (!items.length) return null;
   return (
     <div>
-      <div className="card-title mb-2 flex items-center gap-1.5"><Icon size={12} /> {title}</div>
+      <div className="eyebrow mb-2 flex items-center gap-1.5"><Icon size={12} /> {title}</div>
       <div className="flex flex-wrap gap-2">
         {items.map((i) => (
-          <Link key={i.symbol} href={`/t/${encodeURIComponent(i.symbol)}`} className="chip !px-3 !py-1.5 text-ink/85 hover:border-accent/40 hover:text-ink" title={i.name}>
+          <Link key={i.symbol} href={`/t/${encodeURIComponent(i.symbol)}`} className="chip !px-2.5 !py-1.5 text-ink/85 transition-colors hover:!text-ink hover:bg-panel" title={i.name}>
             <span className="num font-semibold">{i.symbol}</span>
             <span className="max-w-[140px] truncate text-mute">{i.name}</span>
           </Link>
@@ -39,14 +39,12 @@ export default function Home() {
     <div className="min-h-screen">
       <Header search={false} />
       <main className="mx-auto max-w-5xl px-4 pb-24 sm:px-6">
-        <section className="relative z-20 pt-20 text-center sm:pt-28 animate-fadeup">
-          <div className="chip mx-auto mb-6 text-mute">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-up" /> Live market data · SEC filings · AI research
-          </div>
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl">
+        <section className="relative z-20 pt-20 text-center sm:pt-28">
+          <div className="eyebrow mb-5">Equity research platform</div>
+          <h1 className="text-4xl font-semibold tracking-[-0.03em] sm:text-[56px] sm:leading-[1.05]">
             Research any stock
             <br />
-            <span className="bg-gradient-to-r from-accent via-purple-400 to-up bg-clip-text text-transparent">in seconds, not hours.</span>
+            <span className="text-mute">in seconds, not hours.</span>
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-base text-mute sm:text-lg">
             Type a ticker. TIKR pulls prices, filings and every recent headline, crunches the numbers, then an AI analyst writes you a full research note.
@@ -56,27 +54,27 @@ export default function Home() {
           </div>
           <div className="mx-auto mt-5 flex max-w-2xl flex-wrap justify-center gap-2">
             {POPULAR.map((s) => (
-              <Link key={s} href={`/t/${s}`} className="chip num !px-3 !py-1 text-ink/75 transition hover:border-accent/40 hover:text-ink">{s}</Link>
+              <Link key={s} href={`/t/${s}`} className="chip num !px-2.5 !py-1 transition-colors hover:bg-panel hover:!text-ink">{s}</Link>
             ))}
           </div>
         </section>
 
         {(watch.length > 0 || recent.length > 0) && (
-          <section className="card mt-14 space-y-5 p-5">
+          <section className="card mt-14 space-y-5 p-5 text-left">
             <List title="Watchlist" icon={Star} items={watch} />
             <List title="Recently viewed" icon={History} items={recent} />
           </section>
         )}
 
-        <section className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map((f, i) => (
-            <div key={f.title} className="card p-5 animate-fadeup" style={{ animationDelay: `${i * 60}ms` }}>
-              <div className="grid h-9 w-9 place-items-center rounded-xl bg-accent/15 text-accent"><f.icon size={18} /></div>
+        <section className="mt-20 grid gap-px overflow-hidden rounded-lg border bg-line/10 hairline sm:grid-cols-2 lg:grid-cols-3">
+          {FEATURES.map((f) => (
+            <div key={f.title} className="bg-panel p-6">
+              <div className="grid h-9 w-9 place-items-center rounded-md border bg-raised text-ink hairline"><f.icon size={17} strokeWidth={1.75} /></div>
               <div className="mt-4 font-semibold">{f.title}</div>
               <p className="mt-1.5 text-sm leading-relaxed text-mute">{f.body}</p>
             </div>
           ))}
-          <div className="card flex flex-col justify-center p-5">
+          <div className="flex flex-col justify-center bg-panel p-6">
             <div className="text-sm text-mute">Works with</div>
             <div className="mt-2 text-sm leading-relaxed text-ink/85">US & global equities, ETFs, indices, crypto, futures and FX — anything with a Yahoo Finance symbol.</div>
           </div>

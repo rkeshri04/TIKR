@@ -2,110 +2,127 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Color system
+ * ------------
+ * Modeled on enterprise design systems (IBM Carbon, Vercel Geist):
+ *  - Neutral gray scale does almost all the work; surfaces are layered with
+ *    flat gray steps, never blur, glow or gradients.
+ *  - One brand accent (IBM Blue) for focus, links and primary actions.
+ *  - Green/red are reserved for price direction and always paired with a
+ *    sign or ▲▼ glyph (red-green color-vision deficiency is common).
+ *  - Chart series use a validated categorical set: blue, orange, teal.
+ */
 :root {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --bg: 7 9 14;
-  --panel: 15 18 27;
-  --line: 255 255 255;
-  --ink: 236 239 245;
-  --mute: 138 146 165;
-  --up: 34 211 148;
-  --down: 248 81 99;
-  --accent: 124 140 255;
-  --warn: 251 191 36;
-  --line-a: 0.07;
-  /* Validated categorical series (dataviz palette, dark steps) */
-  --s1: 57 135 229;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Dark (default) */
+  --bg: 11 11 12;        /* page */
+  --panel: 20 20 22;     /* layer 1: cards */
+  --raised: 30 30 33;    /* layer 2: hover, inputs, chips */
+  --line: 255 255 255;   /* borders = line @ --line-a */
+  --line-a: 0.09;
+  --ink: 237 237 237;    /* primary text */
+  --mute: 160 160 160;   /* secondary text (≥ 4.5:1 on panel) */
+  --accent: 69 137 255;  /* IBM Blue 50 */
+  --on-accent: 255 255 255;
+  --up: 66 190 101;      /* Carbon Green 40 */
+  --down: 250 77 86;     /* Carbon Red 50 */
+  --warn: 241 194 27;    /* Carbon Yellow 30 */
+  --s1: 69 137 255;
   --s2: 217 89 38;
-  --s3: 25 158 112;
+  --s3: 0 157 154;
   color-scheme: dark;
 }
 :root[data-theme="light"] {
-  --bg: 246 247 250;
+  --bg: 246 246 246;
   --panel: 255 255 255;
-  --line: 15 23 42;
-  --ink: 15 20 32;
-  --mute: 95 104 122;
-  --up: 5 150 105;
-  --down: 225 29 72;
-  --accent: 79 70 229;
-  --warn: 217 119 6;
-  --line-a: 0.09;
-  --s1: 42 120 214;
+  --raised: 244 244 245;
+  --line: 22 22 22;
+  --line-a: 0.1;
+  --ink: 22 22 22;       /* Carbon Gray 100 */
+  --mute: 82 82 82;      /* Carbon Gray 70 */
+  --accent: 15 98 254;   /* IBM Blue 60 */
+  --on-accent: 255 255 255;
+  --up: 25 128 56;       /* Carbon Green 60 */
+  --down: 218 30 40;     /* Carbon Red 60 */
+  --warn: 142 106 0;     /* Carbon Yellow 60: readable as text */
+  --s1: 15 98 254;
   --s2: 235 104 52;
-  --s3: 27 175 122;
+  --s3: 0 157 154;
   color-scheme: light;
 }
 
 html, body { background: rgb(var(--bg)); color: rgb(var(--ink)); }
 body {
   font-family: var(--font-sans);
-  font-feature-settings: "cv11", "ss01", "tnum";
+  font-feature-settings: "cv11", "tnum";
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
 }
-body::before {
-  content: "";
-  position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  background:
-    radial-gradient(900px 500px at 10% -10%, rgb(var(--accent) / 0.16), transparent 60%),
-    radial-gradient(700px 400px at 100% 0%, rgb(var(--up) / 0.08), transparent 60%),
-    radial-gradient(800px 600px at 50% 120%, rgb(var(--accent) / 0.07), transparent 60%);
-}
-:root[data-theme="light"] body::before { opacity: 0.6; }
 
 @layer components {
   .card {
-    @apply rounded-2xl border bg-panel/70 backdrop-blur-xl;
+    @apply rounded-lg border bg-panel;
     border-color: rgb(var(--line) / var(--line-a));
-    box-shadow: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 20px 50px -30px rgb(0 0 0 / 0.6);
   }
+  :root[data-theme="light"] .card { box-shadow: 0 1px 2px rgb(0 0 0 / 0.04); }
   .hairline { border-color: rgb(var(--line) / var(--line-a)); }
-  .card-title { @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-mute; }
+  .card-title { @apply text-[13px] font-semibold text-ink; }
+  .eyebrow { @apply text-[11px] font-medium uppercase tracking-[0.08em] text-mute; }
   .chip {
-    @apply inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium;
+    @apply inline-flex items-center gap-1 rounded border bg-raised px-1.5 py-0.5 text-[11px] font-medium text-mute;
     border-color: rgb(var(--line) / var(--line-a));
   }
-  .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
-  .skeleton { @apply relative overflow-hidden rounded-lg; background: rgb(var(--line) / 0.06); }
+  /* Inter with tabular figures: numbers align in columns without a "code" look. */
+  .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum", "cv11"; letter-spacing: -0.005em; }
+  .skeleton { @apply relative overflow-hidden rounded-md bg-raised; }
   .skeleton::after {
     content: ""; position: absolute; inset: 0; transform: translateX(-100%);
-    background: linear-gradient(90deg, transparent, rgb(var(--line) / 0.06), transparent);
+    background: linear-gradient(90deg, transparent, rgb(var(--line) / 0.04), transparent);
     animation: shimmer 1.4s infinite;
   }
-  .tab { @apply rounded-lg px-2.5 py-1 text-xs font-medium text-mute transition hover:text-ink; }
-  .tab-on { @apply bg-accent/15 text-ink; box-shadow: inset 0 0 0 1px rgb(var(--accent) / 0.35); }
+  .tab { @apply rounded-md px-2.5 py-1 text-xs font-medium text-mute transition-colors hover:bg-raised hover:text-ink; }
+  .tab-on { @apply bg-raised text-ink; box-shadow: inset 0 0 0 1px rgb(var(--line) / var(--line-a)); }
+  .seg { @apply inline-flex items-center gap-0.5 rounded-md border bg-bg p-0.5; border-color: rgb(var(--line) / var(--line-a)); }
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-3.5 py-2 text-sm font-medium transition-colors disabled:opacity-50;
   }
-  .btn-primary { @apply btn text-white; background: linear-gradient(135deg, rgb(var(--accent)), rgb(168 85 247)); box-shadow: 0 8px 30px -10px rgb(var(--accent) / 0.8); }
-  .btn-primary:hover { filter: brightness(1.1); }
-  .btn-ghost { @apply btn border text-ink hover:bg-white/5; border-color: rgb(var(--line) / var(--line-a)); }
+  .btn-primary { @apply btn bg-accent text-white hover:bg-accent/90; }
+  .btn-ghost { @apply btn border bg-panel text-ink hover:bg-raised; border-color: rgb(var(--line) / var(--line-a)); }
+  .field {
+    @apply rounded-md border bg-panel outline-none transition-colors focus-within:border-accent focus:border-accent;
+    border-color: rgb(var(--line) / 0.14);
+  }
+  .field:focus-within, .field:focus { box-shadow: 0 0 0 1px rgb(var(--accent)); }
 }
 @keyframes shimmer { 100% { transform: translateX(100%); } }
 
 /* Report markdown */
 .prose-tikr { @apply text-[14.5px] leading-relaxed text-ink/90; }
-.prose-tikr h2 { @apply mt-7 mb-2 flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.12em] text-accent; }
-.prose-tikr h2:first-child { @apply mt-0; }
+.prose-tikr h2 { @apply mt-8 mb-2 border-t pt-5 text-[15px] font-semibold text-ink; border-color: rgb(var(--line) / var(--line-a)); }
+.prose-tikr h2:first-child { @apply mt-0 border-0 pt-0; }
 .prose-tikr h3 { @apply mt-4 mb-1 font-semibold text-ink; }
 .prose-tikr p { @apply my-2; }
 .prose-tikr ul { @apply my-2 list-none space-y-1.5 pl-0; }
-.prose-tikr ul > li { @apply relative pl-5; }
-.prose-tikr ul > li::before { content: ""; @apply absolute left-1 top-[0.6em] h-1.5 w-1.5 rounded-full bg-accent/70; }
+.prose-tikr ul > li { @apply relative pl-4; }
+.prose-tikr ul > li::before { content: ""; @apply absolute left-0.5 top-[0.68em] h-1 w-1 rounded-full bg-mute; }
 .prose-tikr ol { @apply my-2 list-decimal pl-5; }
 .prose-tikr strong { @apply font-semibold text-ink; }
 .prose-tikr a { @apply text-accent underline decoration-accent/30 underline-offset-2 hover:decoration-accent; }
-.prose-tikr blockquote { @apply my-3 rounded-r-lg border-l-2 border-accent/60 bg-accent/5 px-3 py-2 text-mute; }
-.prose-tikr table { @apply my-3 w-full border-collapse overflow-hidden rounded-lg text-[13px]; }
-.prose-tikr th { @apply border-b px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-mute; border-color: rgb(var(--line) / var(--line-a)); }
+.prose-tikr blockquote { @apply my-3 border-l-2 bg-raised px-3 py-2 text-mute; border-color: rgb(var(--line) / 0.25); }
+.prose-tikr table { @apply my-3 w-full border-collapse text-[13px]; }
+.prose-tikr th { @apply border-b px-3 py-2 text-left text-xs font-medium text-mute; border-color: rgb(var(--line) / var(--line-a)); }
 .prose-tikr td { @apply border-b px-3 py-2 num; border-color: rgb(var(--line) / var(--line-a)); }
-.prose-tikr code { @apply rounded bg-white/5 px-1 py-0.5 text-[12.5px]; }
+.prose-tikr code { @apply rounded bg-raised px-1 py-0.5 font-mono text-[12.5px]; }
 .prose-tikr hr { @apply my-4 hairline; }
 
-.caret::after { content: "▍"; @apply ml-0.5 animate-pulse text-accent; }
+.caret::after { content: "▍"; @apply ml-0.5 animate-pulse text-mute; }
 
 ::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-thumb { background: rgb(var(--line) / 0.1); border-radius: 10px; border: 3px solid transparent; background-clip: padding-box; }
-::selection { background: rgb(var(--accent) / 0.35); }
+::-webkit-scrollbar-thumb { background: rgb(var(--line) / 0.12); border-radius: 10px; border: 3px solid transparent; background-clip: padding-box; }
+::selection { background: rgb(var(--accent) / 0.3); }
+:focus-visible { outline: 2px solid rgb(var(--accent)); outline-offset: 2px; }
+/* The .field wrapper draws the focus ring; don't double it on the inner input. */
+.field input:focus-visible { outline: none; }

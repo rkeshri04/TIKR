@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   icons: { icon: "/icon.svg" },
 };
 
-export const viewport: Viewport = { themeColor: "#07090e", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#0b0b0c", width: "device-width", initialScale: 1 };
 
 // Runs before paint so the saved theme never flashes.
 const themeScript = `try{var t=localStorage.getItem("tikr-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}`;
@@ -21,7 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
         />
       </head>
       <body>{children}</body>

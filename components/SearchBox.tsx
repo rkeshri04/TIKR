@@ -87,11 +87,11 @@ export default function SearchBox({ big = false, autoFocus = false }: { big?: bo
     <div ref={box} className="relative w-full">
       <div
         className={clsx(
-          "group flex items-center gap-3 rounded-2xl border bg-panel/80 backdrop-blur-xl transition focus-within:border-accent/60 focus-within:ring-4 focus-within:ring-accent/15 hairline",
+          "field group flex items-center gap-3",
           big ? "h-16 px-5" : "h-10 px-3",
         )}
       >
-        <Search size={big ? 22 : 16} className={clsx("shrink-0 text-mute", loading && "animate-pulse text-accent")} />
+        <Search size={big ? 22 : 16} className={clsx("shrink-0 text-mute", loading && "animate-pulse")} />
         <input
           ref={input}
           autoFocus={autoFocus}
@@ -108,13 +108,13 @@ export default function SearchBox({ big = false, autoFocus = false }: { big?: bo
         <kbd className="hidden shrink-0 rounded-md border px-1.5 py-0.5 text-[10px] text-mute hairline sm:block">⌘K</kbd>
       </div>
       {open && hits.length > 0 && (
-        <div className="card absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden !bg-panel p-1.5 shadow-2xl animate-fadeup">
+        <div className="card absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden p-1 shadow-xl">
           {hits.map((h, i) => (
             <button
               key={h.symbol + i}
               onMouseEnter={() => setSel(i)}
               onClick={() => go(h.symbol)}
-              className={clsx("flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left", i === sel && "bg-accent/10")}
+              className={clsx("flex w-full items-center gap-3 rounded px-3 py-2.5 text-left", i === sel && "bg-raised")}
             >
               <span className="num w-24 shrink-0 truncate text-sm font-semibold">{h.symbol}</span>
               <span className="min-w-0 flex-1 truncate text-sm text-ink/80">{h.name}</span>

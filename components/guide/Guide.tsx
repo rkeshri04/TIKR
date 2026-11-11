@@ -328,8 +328,9 @@ export default function Guide() {
                 <b>Regenerate</b> for a fresh note, or <b>Copy</b> to save it.
               </p>
               <Tip kind="note">
-                The full AI note needs an Anthropic API key set up by whoever runs this TIKR site. Without one, you get a simpler note from TIKR&apos;s built-in rules.
-                Either way, treat it as a smart summary to check, not as advice.
+                The AI is switched on by whoever runs this TIKR site. They choose an Anthropic API key or the Claude Code app installed on their computer, using the{" "}
+                <code className="rounded bg-raised px-1 font-mono text-[12.5px]">TIKR_AI_PROVIDER</code> setting. The panel header shows which one is in use. With neither, you get a simpler note from TIKR&apos;s
+                built-in rules. Either way, treat it as a smart summary to check, not as advice.
               </Tip>
             </Section>
 

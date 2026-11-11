@@ -45,20 +45,42 @@ It works with US and global equities, ETFs, indices, crypto, futures and FX: any
 
 ```bash
 npm install
-cp .env.example .env.local   # optional: add ANTHROPIC_API_KEY, SEC_USER_AGENT
+cp .env.example .env.local   # optional: choose an AI engine, set SEC_USER_AGENT
 npm run dev                  # http://localhost:3000
 ```
 
 Production: `npm run build && npm start`.
 
+### Choosing the AI engine
+
+One setting in `.env.local` picks what writes the research note and answers questions:
+
+| `TIKR_AI_PROVIDER` | Uses | Billed to |
+|---|---|---|
+| `auto` (default) | API if a key is set, else Claude Code if installed, else built-in | depends |
+| `api` | Claude API via `ANTHROPIC_API_KEY` | your API account |
+| `claude-code` | The **Claude Code CLI installed on this machine** (`claude -p`), using its own login | your Claude Code plan (e.g. Pro/Max) |
+| `local` | Built-in rules-based analyst, no AI | free |
+
+**Claude Code mode** runs the CLI headless and locks it down:
+- **Isolated:** it runs in an empty temp folder, so no project files or `CLAUDE.md` are loaded.
+- **Restricted tools:** only `WebSearch` and `WebFetch` are available, with no MCP servers, no slash commands and no saved session.
+- **Your login, not your key:** `ANTHROPIC_API_KEY` is stripped from its environment, so it uses the CLI's own login even if a key is also set.
+
+To set it up, install Claude Code, run `claude` once to sign in, then set `TIKR_AI_PROVIDER=claude-code`. If the setting can't be satisfied (no key, or CLI not found), the app says why in the AI panel and falls back to the built-in analyst.
+
 ### Configuration (`.env.local`)
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | — | Enables the Claude analyst note and Q&A. Without it, TIKR uses the built-in quant analyst. |
-| `TIKR_MODEL` | `claude-opus-5-5` | Model used for research |
-| `TIKR_EFFORT` | `high` | `low` / `medium` / `high` / `xhigh` / `max`. Lower is faster and cheaper. |
-| `TIKR_WEB_SEARCH` | `1` | Lets Claude run up to 6 web searches per note (3 per question). Set to `0` to turn this off. |
+| `TIKR_AI_PROVIDER` | `auto` | `auto` / `api` / `claude-code` / `local`. See above. |
+| `ANTHROPIC_API_KEY` | — | Key for `api` mode |
+| `TIKR_MODEL` | `claude-opus-5-5` | Model for `api` mode |
+| `TIKR_CLAUDE_BIN` | `claude` | Path to the Claude Code CLI if it isn't on `PATH` |
+| `TIKR_CLAUDE_CODE_MODEL` | CLI default | Model for `claude-code` mode |
+| `TIKR_CLAUDE_CODE_TIMEOUT_MS` | `300000` | Stops a Claude Code run that takes longer than this |
+| `TIKR_EFFORT` | `high` | `low` / `medium` / `high` / `xhigh` / `max`, for both engines. Lower is faster and cheaper. |
+| `TIKR_WEB_SEARCH` | `1` | Lets the analyst run up to 6 web searches per note (3 per question). Set to `0` to turn this off. |
 | `SEC_USER_AGENT` | generic | The SEC asks automated clients to identify themselves. Set it to `"YourApp your@email.com"`. |
 
 If you're behind an HTTP proxy, Node's built-in `fetch` ignores `HTTPS_PROXY` unless you start it with `NODE_USE_ENV_PROXY=1` (Node ≥ 22.21).

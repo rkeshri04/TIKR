@@ -8,13 +8,13 @@ import { currencySymbol, fmtNum } from "@/lib/format";
 import PriceChart from "./PriceChart";
 import Fundamentals from "./Fundamentals";
 import NewsFeed, { SentimentCard } from "./NewsFeed";
-import AIReport, { AskAI } from "./AIReport";
+import AIReport, { AskAI, type AiInfo } from "./AIReport";
 import { FilingsCard, KeyStats, PeersCard, Returns, ScoreCard, TechnicalsCard } from "./Panels";
 import Header from "./Header";
 import PricedIn, { ThesisCard } from "./PricedIn";
 import { toggleWatch, useWatchlist, pushRecent } from "./watchlist";
 
-type Payload = Dossier & { llm: boolean };
+type Payload = Dossier & { llm: boolean; ai?: AiInfo };
 
 const SECTIONS = [
   ["overview", "Overview"],
@@ -88,8 +88,8 @@ export default function Dashboard({ symbol }: { symbol: string }) {
                 </div>
                 <KeyStats d={d} />
                 <div id="analysis" className="scroll-mt-28 space-y-5">
-                  <AIReport d={d} llm={d.llm} />
-                  <AskAI d={d} llm={d.llm} />
+                  <AIReport d={d} llm={d.llm} ai={d.ai} />
+                  <AskAI d={d} llm={d.llm} ai={d.ai} />
                 </div>
                 <div id="financials" className="scroll-mt-28">
                   <Fundamentals d={d} />

@@ -14,6 +14,6 @@ export async function POST(req: Request, ctx: { params: Promise<{ symbol: string
     .map((m) => ({ role: m.role, content: m.content.slice(0, 4000) }));
   return ndjson(async (emit) => {
     const d = await buildDossier(symbol);
-    await streamAnswer(d, question, history, emit);
+    await streamAnswer(d, question, history, emit, req.signal);
   });
 }

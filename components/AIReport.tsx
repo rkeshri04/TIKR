@@ -7,7 +7,13 @@ import { Bot, Copy, Globe, Loader2, RefreshCw, Send, Sparkles } from "lucide-rea
 import type { Dossier } from "@/lib/types";
 import { fmtNum } from "@/lib/format";
 
-type Ev = { t: "status"; m: string } | { t: "source"; title: string; url: string } | { t: "text"; d: string } | { t: "done"; engine: string } | { t: "error"; m: string };
+type Ev =
+  | { t: "status"; m: string }
+  | { t: "source"; title: string; url: string }
+  | { t: "text"; d: string }
+  | { t: "reset" }
+  | { t: "done"; engine: string }
+  | { t: "error"; m: string };
 
 async function readStream(res: Response, on: (e: Ev) => void) {
   if (!res.body) throw new Error("No stream");
@@ -52,7 +58,9 @@ const md = (s: string) => (
   </ReactMarkdown>
 );
 
-export default function AIReport({ d, llm }: { d: Dossier; llm: boolean }) {
+export type AiInfo = { provider: "api" | "claude-code" | "local"; label: string; problem?: string };
+
+export default function AIReport({ d, llm, ai }: { d: Dossier; llm: boolean; ai?: AiInfo }) {
   const [text, setText] = useState("");
   const [status, setStatus] = useState<string[]>([]);
   const [sources, setSources] = useState<{ title: string; url: string }[]>([]);
@@ -72,6 +80,7 @@ export default function AIReport({ d, llm }: { d: Dossier; llm: boolean }) {
       const res = await fetch(`/api/analyze/${encodeURIComponent(d.symbol)}`, { method: "POST", signal: ctrl.signal });
       await readStream(res, (e) => {
         if (e.t === "text") { acc += e.d; setText(acc); }
+        else if (e.t === "reset") { acc = ""; setText(""); }
         else if (e.t === "status") setStatus((s) => [...s, e.m]);
         else if (e.t === "source") setSources((s) => (s.some((x) => x.url === e.url) ? s : [...s, { title: e.title, url: e.url }]));
         else if (e.t === "done") { setEngine(e.engine); setState("done"); }
@@ -108,7 +117,7 @@ export default function AIReport({ d, llm }: { d: Dossier; llm: boolean }) {
           <div>
             <div className="text-sm font-semibold">AI Research Note</div>
             <div className="text-[11px] text-mute">
-              {state === "running" ? "Analyst is working…" : engine ? `by ${engine}` : llm ? "Claude + live web research" : "Built-in quant analyst"}
+              {state === "running" ? `Working · ${ai?.label ?? "AI analyst"}` : engine && engine !== "cached" ? `by ${engine}` : ai?.label ?? (llm ? "Claude + live web research" : "Built-in quant analyst")}
             </div>
           </div>
         </div>
@@ -178,7 +187,7 @@ export default function AIReport({ d, llm }: { d: Dossier; llm: boolean }) {
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-export function AskAI({ d, llm }: { d: Dossier; llm: boolean }) {
+export function AskAI({ d, llm, ai }: { d: Dossier; llm: boolean; ai?: AiInfo }) {
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState(false);
@@ -214,7 +223,10 @@ export function AskAI({ d, llm }: { d: Dossier; llm: boolean }) {
         body: JSON.stringify({ question, history }),
       });
       await readStream(res, (e) => {
-        if (e.t === "text") {
+        if (e.t === "reset") {
+          acc = "";
+          setMsgs((m) => [...m.slice(0, -1), { role: "assistant", content: "" }]);
+        } else if (e.t === "text") {
           acc += e.d;
           setStatus("");
           setMsgs((m) => [...m.slice(0, -1), { role: "assistant", content: acc }]);
@@ -232,7 +244,7 @@ export function AskAI({ d, llm }: { d: Dossier; llm: boolean }) {
     <section className="card p-4 sm:p-5">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="card-title flex items-center gap-2"><Bot size={14} className="text-mute" /> Ask the analyst</h3>
-        {!llm && <span className="chip">Requires API key</span>}
+        {llm ? <span className="text-[11px] text-mute">{ai?.label}</span> : <span className="chip" title={ai?.problem}>AI not configured</span>}
       </div>
       {msgs.length === 0 && (
         <div className="grid gap-2 sm:grid-cols-2">

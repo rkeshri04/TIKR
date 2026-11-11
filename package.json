@@ -1,0 +1,35 @@
+{
+  "name": "tikr",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI-powered stock research terminal: type any ticker, get prices, news, filings, technicals and an LLM research report.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0",
+    "clsx": "^2.1.1",
+    "fast-xml-parser": "^5.12.0",
+    "lightweight-charts": "^5.3.0",
+    "lucide-react": "^1.72.0",
+    "next": "^15.5.29",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-markdown": "^10.1.0",
+    "recharts": "^3.10.1",
+    "remark-gfm": "^4.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "autoprefixer": "^10.6.2",
+    "postcss": "^8.5.32",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^5.9.3"
+  }
+}

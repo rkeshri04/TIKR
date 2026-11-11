@@ -1,3 +1,5 @@
+import type { Expectations } from "./dcf";
+
 export type Candle = { time: number; open: number; high: number; low: number; close: number; volume: number };
 
 export type Quote = {
@@ -149,5 +151,6 @@ export type Dossier = {
   newsStats: { count: number; avg: number; bullish: number; bearish: number; neutral: number; topics: Record<string, number> };
   peers: Peer[];
   scores: Scores;
+  expectations: Expectations | null;
   warnings: string[];
 };

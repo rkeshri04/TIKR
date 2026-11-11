@@ -77,6 +77,17 @@ export function briefing(d: Dossier): string {
     L.push(`- [${new Date(n.published).toISOString().slice(0, 10)}] ${n.title} — ${n.source}`);
   }
   L.push("");
+  const e = d.expectations;
+  if (e) {
+    L.push("## What's priced in (reverse DCF)");
+    if (!e.supported) L.push(`Not modeled: ${e.reason}`);
+    else
+      L.push(
+        `Market-implied 10-yr FCF growth ${e.implied != null ? fmtPct(e.implied) : ">150%"} (discount rate ${fmtPct(e.r)}, terminal ${fmtPct(e.gT)}, EV ${fmtBig(e.ev)}, TTM FCF ${fmtBig(e.fcf0)}). ` +
+          `Track record: FCF CAGR ${fmtPct(e.history.fcfCagr)} over ${e.history.fcfYears}y, revenue CAGR ${fmtPct(e.history.revCagr)} over ${e.history.revYears}y. Verdict: ${e.verdict}. Implied year-10 FCF ${fmtBig(e.impliedFcf10)}.`,
+      );
+    L.push("");
+  }
   const sc = d.scores;
   L.push(`## TIKR quant scores (0-100): overall ${sc.overall}, momentum ${sc.momentum}, trend ${sc.trend}, value ${sc.value ?? "n/a"}, quality ${sc.quality ?? "n/a"}, growth ${sc.growth ?? "n/a"}, sentiment ${sc.sentiment}, risk-safety ${sc.risk}`);
   return L.join("\n");
@@ -102,6 +113,7 @@ Write the note in GitHub-flavored markdown with exactly these sections, in this 
 ## Key Risks
 
 Guidance:
+- In Valuation, explicitly address the "What's priced in" section: is the market-implied growth achievable given the track record, the business and the news? That is the central question of the note.
 - Verdict: one bold line with a rating (Strong Buy / Buy / Hold / Sell / Strong Sell), a 12-month fair-value range, and the one-sentence reason.
 - Be specific and quantitative; cite numbers from the dossier and name the sources of anything you found on the web.
 - Bull Case / Bear Case / Catalysts / Key Risks are bullet lists of 3–6 items each.
@@ -251,7 +263,11 @@ ${f ? `## Financial Health
 | Metric | Value |\n|---|---|\n| Cash | ${fmtBig(f.balance.cash)} |\n| Total debt | ${fmtBig(f.balance.totalDebt)} |\n| Debt / equity | ${fmtNum(r?.debtToEquity)} |\n| Current ratio | ${fmtNum(r?.currentRatio)} |\n| Free cash flow (TTM) | ${fmtBig(f.ttm.freeCashFlow)} |\n| ROE | ${fmtPct(r?.roe)} |
 
 ## Valuation
-P/E ${fmtX(r?.pe)}, P/S ${fmtX(r?.ps)}, P/B ${fmtX(r?.pb)}, FCF yield ${fmtPct(r?.fcfYield)}. Value score: **${s.value ?? "n/a"}/100**.` : ""}
+P/E ${fmtX(r?.pe)}, P/S ${fmtX(r?.ps)}, P/B ${fmtX(r?.pb)}, FCF yield ${fmtPct(r?.fcfYield)}. Value score: **${s.value ?? "n/a"}/100**.${
+  d.expectations?.supported && d.expectations.implied != null
+    ? `\n\n**What's priced in:** the current price requires about ${fmtPct(d.expectations.implied)} annual free-cash-flow growth for 10 years, versus a track record of ${fmtPct(d.expectations.history.fcfCagr ?? d.expectations.history.revCagr)} — **${d.expectations.verdict}**.`
+    : ""
+}` : ""}
 
 ## Technical Picture
 RSI ${fmtNum(t.rsi14, 0)}, MACD ${(t.macdHist ?? 0) > 0 ? "above" : "below"} signal, ${fmtPct(t.volatility1y)} annualized volatility, beta ${fmtNum(t.beta)}. Support near ${fmtNum(t.support)}, resistance near ${fmtNum(t.resistance)}.

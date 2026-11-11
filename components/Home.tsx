@@ -1,13 +1,16 @@
 "use client";
 import Link from "next/link";
-import { BarChart3, Brain, FileSearch, Newspaper, Star, History, Gauge } from "lucide-react";
+import { BarChart3, Brain, FileSearch, Newspaper, Star, History, Gauge, Scale, ShieldAlert } from "lucide-react";
 import Header from "./Header";
 import SearchBox from "./SearchBox";
+import ThesisBoard from "./ThesisBoard";
 import { useRecent, useWatchlist } from "./watchlist";
 
 const POPULAR = ["NVDA", "AAPL", "MSFT", "TSLA", "AMZN", "META", "GOOGL", "AMD", "PLTR", "JPM", "BRK-B", "BTC-USD"];
 
 const FEATURES = [
+  { icon: Scale, title: "What's priced in", body: "Reverse-engineers the live price into the growth the market is betting on, next to the company's real track record. Then set your own view." },
+  { icon: ShieldAlert, title: "Thesis tripwires", body: "Save your view and TIKR turns it into checks that rerun on every visit, flagging when filings, price or news stop agreeing with you." },
   { icon: Brain, title: "AI analyst note", body: "Claude reads the whole dossier, runs its own web searches, and writes a full research note with a verdict and fair-value range." },
   { icon: Newspaper, title: "News intelligence", body: "Multiple Google News queries + Yahoo headlines, de-duplicated, sentiment-scored and tagged by topic." },
   { icon: FileSearch, title: "SEC fundamentals", body: "Revenue, margins, cash flow, balance sheet and ratios straight from EDGAR XBRL filings — no paid API." },
@@ -38,7 +41,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       <Header search={false} />
-      <main className="mx-auto max-w-5xl px-4 pb-24 sm:px-6">
+      <main className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
         <section className="relative z-20 pt-20 text-center sm:pt-28">
           <div className="eyebrow mb-5">Equity research platform</div>
           <h1 className="text-4xl font-semibold tracking-[-0.03em] sm:text-[56px] sm:leading-[1.05]">
@@ -59,6 +62,8 @@ export default function Home() {
           </div>
         </section>
 
+        <ThesisBoard />
+
         {(watch.length > 0 || recent.length > 0) && (
           <section className="card mt-14 space-y-5 p-5 text-left">
             <List title="Watchlist" icon={Star} items={watch} />
@@ -66,7 +71,7 @@ export default function Home() {
           </section>
         )}
 
-        <section className="mt-20 grid gap-px overflow-hidden rounded-lg border bg-line/10 hairline sm:grid-cols-2 lg:grid-cols-3">
+        <section className="mt-20 grid gap-px overflow-hidden rounded-lg border bg-line/10 hairline sm:grid-cols-2 lg:grid-cols-4">
           {FEATURES.map((f) => (
             <div key={f.title} className="bg-panel p-6">
               <div className="grid h-9 w-9 place-items-center rounded-md border bg-raised text-ink hairline"><f.icon size={17} strokeWidth={1.75} /></div>

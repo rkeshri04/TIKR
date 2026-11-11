@@ -6,6 +6,63 @@ import { getNews, newsStats } from "./news";
 import { getFilings, getFundamentals, lookupCik } from "./sec";
 import { getChart, getPeerSymbols, normalizeSymbol, search } from "./yahoo";
 import type { Dossier, Fundamentals, Peer, Scores, Technicals } from "./types";
+import { TERMINAL, ERP, cagr, discountRate, impliedGrowth, verdictFor, type Expectations } from "./dcf";
+
+// Past hypergrowth doesn't make a decade of it easy: compounding 20%+ for ten
+// years is rare, so very high implied growth is never labeled "easy".
+function floorVerdict(v: Expectations["verdict"], g: number): Expectations["verdict"] {
+  if (g >= 0.3) return "heroic";
+  if (g >= 0.18 && (v === "undemanding" || v === "in line")) return "demanding";
+  return v;
+}
+
+const NO_DCF = /bank|insurance|reit|real estate|capital markets|financial|credit services|mortgage|asset management|trust/i;
+
+/** Reverse-DCF the current price into the growth the market is pricing in. */
+function expectations(f: Fundamentals | null, price: number, beta: number | null, riskFree: number, industry?: string, sector?: string): Expectations | null {
+  if (!f || !f.sharesOutstanding || !price) return null;
+  const shares = f.sharesOutstanding;
+  const marketCap = shares * price;
+  const netDebt = (f.balance.totalDebt ?? 0) - (f.balance.cash ?? 0);
+  const ev = marketCap + netDebt;
+  const fcf0 = f.ttm.freeCashFlow ?? 0;
+  const r = discountRate(riskFree, beta ?? 1);
+  const fcfSeries = f.annual.freeCashFlow.map((p) => ({ year: p.year, value: p.value }));
+  // Track record: longest window up to 5 years with positive endpoints.
+  const window = (s: { year: number; value: number }[]) => {
+    for (let n = Math.min(5, s.length - 1); n >= 2; n--) {
+      const c = cagr(s[s.length - 1 - n].value, s[s.length - 1].value, n);
+      if (c != null) return { c, n };
+    }
+    return { c: null, n: 0 };
+  };
+  const fw = window(fcfSeries);
+  const rw = window(f.annual.revenue);
+  const base: Expectations = {
+    supported: true, price, shares, marketCap, netDebt, ev, fcf0,
+    fcfMargin: f.ttm.revenue ? fcf0 / f.ttm.revenue : null, revenue: f.ttm.revenue,
+    riskFree, beta: beta ?? 1, erp: ERP, r, gT: TERMINAL, implied: null,
+    history: { fcfCagr: fw.c, fcfYears: fw.n, revCagr: rw.c, revYears: rw.n, fcfSeries },
+    impliedFcf10: null, verdict: null, gap: null,
+  };
+  if (NO_DCF.test(`${industry ?? ""} ${sector ?? ""}`))
+    return { ...base, supported: false, reason: "Cash-flow models don't describe banks, insurers or REITs well — their \"free cash flow\" is mostly balance-sheet movement." };
+  if (fcf0 <= 0)
+    return { ...base, supported: false, reason: "Free cash flow is negative, so today's price is a bet on future profitability rather than growth of existing cash flows." };
+  if (ev <= 0) return { ...base, supported: false, reason: "Net cash exceeds the market cap, so the market is assigning no value to the operating business." };
+  const g = impliedGrowth(ev, fcf0, r, TERMINAL);
+  // Compare against the more generous of FCF and revenue track records.
+  const record = [fw.c, rw.c].filter((x): x is number => x != null);
+  const best = record.length ? Math.max(...record) : null;
+  const gap = g != null && best != null ? g - best : null;
+  return {
+    ...base,
+    implied: g,
+    impliedFcf10: g != null ? fcf0 * Math.pow(1 + g, 10) : null,
+    gap,
+    verdict: g == null ? "heroic" : floorVerdict(verdictFor(gap), g),
+  };
+}
 
 const clamp = (x: number, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, x));
 /** Map x linearly from [a,b] onto [0,100]. */
@@ -104,11 +161,12 @@ export async function buildDossier(rawSymbol: string): Promise<Dossier> {
   return cached(`dossier:${symbol}`, 3 * 60_000, async () => {
     const warnings: string[] = [];
     // Price history is the one thing we can't do without.
-    const [chart, bench, info, cik] = await Promise.all([
+    const [chart, bench, info, cik, tnx] = await Promise.all([
       getChart(symbol, "5y", "1d"),
       settle(getChart("SPY", "2y", "1d")),
       settle(search(symbol, 3, 0)),
       settle(lookupCik(symbol)),
+      settle(getChart("^TNX", "5d", "1d")),
     ]);
     const { quote, candles } = chart;
     const hit = info?.hits.find((h) => h.symbol.toUpperCase() === symbol) ?? info?.hits[0];
@@ -138,6 +196,9 @@ export async function buildDossier(rawSymbol: string): Promise<Dossier> {
       newsStats: stats,
       peers: peerList,
       scores: score(technicals, fundamentals, stats.avg),
+      expectations: expectations(
+        fundamentals, quote.price, technicals.beta, (tnx?.quote.price ?? 4.25) / 100, hit?.industry ?? filings?.sic, hit?.sector,
+      ),
       warnings,
     };
   });

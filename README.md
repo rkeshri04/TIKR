@@ -18,6 +18,26 @@ All data sources are free and need no keys. The AI layer is optional: without a 
 | Related tickers | Yahoo recommendations | 1-year return comparison |
 | **AI research note** | Claude + live web search | Verdict, fair-value range, bull/bear case, catalysts, risks; streamed with the sources it consulted |
 | **Ask the analyst** | Claude | Follow-up Q&A grounded in the dossier |
+| **What's priced in** | reverse DCF over SEC cash flows + live 10Y yield | Market-implied growth vs. track record, plus your own view with sliders |
+| **Thesis tripwires** | your saved view vs. fresh data | Bullish or bearish theses re-checked on every visit; home-page board |
+
+### What's priced in + Thesis tripwires
+
+Most tools tell you what is happening. TIKR also answers the two questions that decide whether an investment works.
+
+1. **What does today's price assume?** A reverse-DCF turns the live price into the free-cash-flow growth the market is betting on, for example *"the market is pricing in 11.7% a year for 10 years; Apple's own record is 7.9%"*. It's built from SEC cash flows, the live 10-year Treasury yield and the stock's beta. The result is compared with the company's own FCF and revenue track record and labeled undemanding, in line, demanding or heroic.
+2. **When am I wrong?** Drag the sliders to set your own view and save it as a bullish or bearish thesis. TIKR turns it into tripwires that rerun on every visit:
+   - growth vs. your assumption
+   - free-cash-flow margin drift
+   - price vs. your value
+   - market-implied growth vs. yours
+   - news-tone shift
+   - your own reconsider price
+   - new 10-K, 10-Q or 8-K filings since you saved
+
+   The home page lists all your theses, worst first. The AI analyst also receives the priced-in numbers and is asked to judge whether they're achievable.
+
+Banks, insurers and REITs, and companies with negative free cash flow, are flagged as unsupported instead of being given a misleading number. Theses are stored in your browser.
 
 It works with US and global equities, ETFs, indices, crypto, futures and FX: anything with a Yahoo Finance symbol (`AAPL`, `BRK-B`, `RELIANCE.NS`, `7203.T`, `BTC-USD`, `^GSPC`). SEC fundamentals are available for US filers only.
 

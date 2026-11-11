@@ -11,12 +11,14 @@ import NewsFeed, { SentimentCard } from "./NewsFeed";
 import AIReport, { AskAI } from "./AIReport";
 import { FilingsCard, KeyStats, PeersCard, Returns, ScoreCard, TechnicalsCard } from "./Panels";
 import Header from "./Header";
+import PricedIn, { ThesisCard } from "./PricedIn";
 import { toggleWatch, useWatchlist, pushRecent } from "./watchlist";
 
 type Payload = Dossier & { llm: boolean };
 
 const SECTIONS = [
   ["overview", "Overview"],
+  ["priced-in", "Priced in"],
   ["analysis", "AI analysis"],
   ["financials", "Financials"],
   ["news", "News"],
@@ -80,8 +82,11 @@ export default function Dashboard({ symbol }: { symbol: string }) {
                 <div id="overview" className="scroll-mt-28 space-y-5">
                   <PriceChart symbol={d.symbol} daily={d.candles} timezone={d.quote.timezone} previousClose={d.quote.previousClose} />
                   <Returns d={d} />
-                  <KeyStats d={d} />
                 </div>
+                <div id="priced-in" className="scroll-mt-28">
+                  <PricedIn d={d} />
+                </div>
+                <KeyStats d={d} />
                 <div id="analysis" className="scroll-mt-28 space-y-5">
                   <AIReport d={d} llm={d.llm} />
                   <AskAI d={d} llm={d.llm} />
@@ -94,6 +99,7 @@ export default function Dashboard({ symbol }: { symbol: string }) {
                 </div>
               </div>
               <aside className="space-y-5 lg:col-span-4">
+                <ThesisCard d={d} />
                 <ScoreCard d={d} />
                 <TechnicalsCard d={d} />
                 <SentimentCard d={d} />

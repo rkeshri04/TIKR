@@ -1,8 +1,11 @@
 # TIKR — AI stock research terminal
+![Landing Screenshot](assets/screenshot/landing.png)
 
 Type any ticker and TIKR builds a full research dossier in a few seconds. It pulls prices, SEC filings and every recent headline, computes technicals and a quant scorecard, and then an AI analyst writes a research note you can question further.
 
 All data sources are free and need no keys. The AI layer is optional: without a key, a built-in rules-based analyst writes the note.
+
+![stock-example-page Screenshot](assets/screenshot/stock.png)
 
 ## What you get
 
@@ -22,6 +25,7 @@ All data sources are free and need no keys. The AI layer is optional: without a 
 | **Thesis tripwires** | your saved view vs. fresh data | Bullish or bearish theses re-checked on every visit; home-page board |
 
 ### What's priced in + Thesis tripwires
+![priced-in Screenshot](assets/screenshot/priced-in.png)
 
 Most tools tell you what is happening. TIKR also answers the two questions that decide whether an investment works.
 
